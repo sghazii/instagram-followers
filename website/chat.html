@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Instagram Unfollower Check</title>
+</head>
+<body>
+    <div class="topnav">
+        <p>Instagram Unfollower Checker</p>
+      </div>
+    <div class="main">
+  <h1>Never be a fan!!</h1>
+  <h2>Attach the json files from your instgram downloads below</h2>
+  <button onclick="openSlideshow()" class="help">How do I get the JSON Files?</button>
+
+  <form id="fileForm" enctype="multipart/form-data">
+    <label for="followersFile">Select followers_1.json:</label>
+    <input type="file" id="followersFile" name="followersFile" accept=".json" required><br><br>
+
+    <label for="followingFile">Select following.json:</label>
+    <input type="file" id="followingFile" name="followingFile" accept=".json" required><br><br>
+
+    <input type="button" value="Process Files" onclick="processFiles()">
+  </form>
+</div>
+
+    <h2>Result:</h2>
+  <div id="result"></div>
+
+  
+
+<!-- Slideshow Modal -->
+<div id="slideshowModal" class="modal">
+    <span class="close" onclick="closeSlideshow()">&times;</span>
+    <div id="slideshowContent" class="modal-content"></div>
+    <a class="prev" onclick="navigate(-1)">&#10094; Previous</a>
+    <a class="next" onclick="navigate(1)">Next &#10095;</a>
+  </div>
+
+  <script>
+    function processFiles() {
+      const followersFile = document.getElementById('followersFile').files[0];
+      const followingFile = document.getElementById('followingFile').files[0];
+
+      if (followersFile && followingFile) {
+        const followersReader = new FileReader();
+        const followingReader = new FileReader();
+
+        followersReader.onload = function () {
+          const followersData = JSON.parse(followersReader.result);
+
+          followingReader.onload = function () {
+            const followingData = JSON.parse(followingReader.result);
+
+            const followers = followersData.map(i => i['string_list_data'][0]['value']);
+            const following = followingData['relationships_following'].map(i => i['string_list_data'][0]['value']);
+
+            const mutual = following.filter(i => !followers.includes(i));
+
+            displayResult(mutual);
+          };
+
+          followingReader.readAsText(followingFile);
+        };
+
+        followersReader.readAsText(followersFile);
+      } else {
+        alert('Please select both files');
+      }
+    }
+
+    function displayResult(result) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+
+      if (result.length > 0) {
+        result.forEach(item => {
+          const p = document.createElement('p');
+          p.textContent = item;
+          resultDiv.appendChild(p);
+        });
+      } else {
+        const p = document.createElement('p');
+        p.textContent = 'No mutual followers found.';
+        resultDiv.appendChild(p);
+      }
+    }
+    function openSlideshow() {
+      const modal = document.getElementById('slideshowModal');
+      modal.style.display = 'block';
+      currentSlide = 0;
+      showSlide(currentSlide);
+    }
+
+    function closeSlideshow() {
+      const modal = document.getElementById('slideshowModal');
+      modal.style.display = 'none';
+    }
+
+    function navigate(direction) {
+      currentSlide += direction;
+      showSlide(currentSlide);
+    }
+
+    function showSlide(index) {
+      const slideshowContent = document.getElementById('slideshowContent');
+      slideshowContent.innerHTML = '';
+
+      // Replace this with your own image URLs and captions
+      const images = ['images/tut1.png', 'images/tut2.png', 'images/tut3.png', 'images/tut4.png', 'images/tut5.png'];
+      const captions = ['Go to your settings and click "see more in account settings"', 'Click your information and permissions then Download your information', 'Click request a download then select types of information', 'Scroll down and click followers and following', 'IMPORTANT: Chnage format to JSON (NOT HTML) and click submit. It should take less than 10 minutes for the data to appear in your email. Download it from the link instagram sends you, right click on the file and extract all and attach the json files listed to the correct option on this website!'];
+
+      const img = document.createElement('img');
+      img.src = images[index];
+      slideshowContent.appendChild(img);
+
+      const caption = document.createElement('p');
+      caption.className = 'caption';
+      caption.textContent = captions[index];
+      slideshowContent.appendChild(caption);
+
+      // Hide or show navigation buttons based on current slide
+      const prevButton = document.querySelector('.prev');
+      const nextButton = document.querySelector('.next');
+
+      prevButton.style.display = (index === 0) ? 'none' : 'block';
+      nextButton.style.display = (index === images.length - 1) ? 'none' : 'block';
+    }
+  </script>
+
+  </script>
+
+</body>
+</html>
